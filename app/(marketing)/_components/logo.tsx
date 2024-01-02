@@ -28,6 +28,9 @@ export const Logo = () => {
       {/* <p className={cn("font-semibold", font.className)}>
         Notion(clone)
       </p> */}
+      {/* <div className="bg-red-500 h-full">
+        DEBUGGGGG
+      </div> */}
     </div>
   )
 }
