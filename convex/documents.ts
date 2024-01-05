@@ -53,6 +53,7 @@ export const archive = mutation({
     }
 })
 
+// 获取侧边栏
 export const getSidebar = query({
     args: {
         parentDocument: v.optional(v.id("documents"))

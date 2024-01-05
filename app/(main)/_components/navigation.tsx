@@ -1,13 +1,16 @@
 "use client"
 
-import { ChevronsLeft, MenuIcon, UserIcon } from "lucide-react";
+import { ChevronsLeft, MenuIcon, PlusCircle, Search, Settings, UserIcon } from "lucide-react";
 import { useRef, ElementRef, useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useMediaQuery } from "usehooks-ts";
 import { cn } from "@/lib/utils";
 import { UserItem } from "./user-item";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Item } from "./item";
+import { toast } from "sonner";
+import { DocumentList } from "./document-list";
 
 export const Navigation = () => {
     // pathname用来获取当前路径For example usePathname() on /dashboard?foo=bar would return "/dashboard"
@@ -16,6 +19,8 @@ export const Navigation = () => {
     const isMobile = useMediaQuery("(max-width: 768px)");
     // 查询文档
     const documents = useQuery(api.documents.get);
+    // 创建文档
+    const create = useMutation(api.documents.create);
 
 
     // 用来判断是否正在调整大小
@@ -112,6 +117,14 @@ export const Navigation = () => {
         }
     }
 
+    const handleCreate = () => {
+        const promise = create({ title: "Untitled" });
+        toast.promise(promise, {
+            loading: "Creating a new note...",
+            success: "New note created!",
+            error: "Failed to create a new note."
+        });
+    }
 
     return (
         <>
@@ -135,17 +148,30 @@ export const Navigation = () => {
                 >
                     <ChevronsLeft className="h-6 w-6" />
                 </div>
-                {/* 用户USERITEM */}
+                {/* Item接口中的 */}
                 <div>
                     <UserItem />
+                    <Item
+                        label="Search"
+                        icon={Search}
+                        onClick={() => { }}
+                        isSearch
+                    />
+                    <Item
+                        label="Settings"
+                        icon={Settings}
+                        onClick={() => { }}
+                    />
+                    <Item
+                        label="New page"
+                        icon={PlusCircle}
+                        onClick={handleCreate}
+                    />
                 </div>
+
                 {/* CONTENT 展示 */}
                 <div className="mt-4 font-semibold">
-                    {documents?.map((document) => (
-                        <p key={document._id}>
-                            {document.title}
-                        </p>
-                    ))}
+                    <DocumentList />
                 </div>
                 <div
                     onMouseDown={handleMouseDown}
