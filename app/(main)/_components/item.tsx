@@ -35,7 +35,7 @@ interface ItemProps {
     level?: number;
     onExpand?: () => void;
     label: string;
-    onClick: () => void;
+    onClick?: () => void;
     icon: LucideIcon;
 };
 
@@ -61,6 +61,21 @@ export const Item = ({
 
     const ChevronIcon = expanded ? ChevronDown : ChevronRight;
 
+    const onArchive = (
+        event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+        event.stopPropagation();
+        if (!id) return;
+        const promise = archive({ id })
+            .then(() => router.push("/documents"))
+
+        toast.promise(promise, {
+            loading: "Moving to trash...",
+            success: "Note moved to trash!",
+            error: "Failed to archive note."
+        });
+    };
+
     // 展开
     const handleExpand = (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -80,7 +95,7 @@ export const Item = ({
                 if (!expanded) {
                     onExpand?.();
                 }
-                router.push(`/documents/${documentId}`);
+                // router.push(`/documents/${documentId}`);
             });
 
         toast.promise(promise, {
@@ -163,13 +178,13 @@ export const Item = ({
                             side="right"
                             forceMount
                         >
-                            <DropdownMenuItem onClick={() => { }}>
+                            <DropdownMenuItem onClick={onArchive}>
                                 <Trash className="h-4 w-4 mr-2" />
                                 Delete
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <div className="text-xs text-muted-foreground p-2">
-                                Last edited by:{user?.fullName}
+                                Last edited by:{user?.emailAddresses[0].emailAddress}
                             </div>
                         </DropdownMenuContent>
                     </DropdownMenu>

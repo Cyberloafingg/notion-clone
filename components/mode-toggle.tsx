@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+
+// 用来切换主题的组件
 export function ModeToggle() {
   const { setTheme } = useTheme()
 

@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { Doc, Id } from "./_generated/dataModel";
 
+// 归档文档到回收站
 export const archive = mutation({
     args: { id: v.id("documents") },
     handler: async (ctx, args) => {
@@ -23,7 +24,12 @@ export const archive = mutation({
         if (existingDocument.userId !== userId) {
             throw new Error("Unauthorized");
         }
-
+        // 使用递归的方式归档文档
+        // |-p 
+        //  |-c1
+        //  |-c2
+        //      |-c2-c1
+        //      |-c2-c2
         const recursiveArchive = async (documentId: Id<"documents">) => {
             const children = await ctx.db
                 .query("documents")
@@ -85,7 +91,6 @@ export const getSidebar = query({
 });
 
 // 创建文档
-// 
 export const create = mutation({
     args: {
         title: v.string(),
@@ -112,6 +117,7 @@ export const create = mutation({
     }
 });
 
+// 获取回收站
 export const getTrash = query({
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -135,6 +141,7 @@ export const getTrash = query({
     }
 });
 
+// 恢复文档
 export const restore = mutation({
     args: { id: v.id("documents") },
     handler: async (ctx, args) => {
@@ -155,7 +162,7 @@ export const restore = mutation({
         if (existingDocument.userId !== userId) {
             throw new Error("Unauthorized");
         }
-
+        // 使用递归的方式恢复文档
         const recursiveRestore = async (documentId: Id<"documents">) => {
             const children = await ctx.db
                 .query("documents")
@@ -194,6 +201,7 @@ export const restore = mutation({
     }
 });
 
+// 删除文档
 export const remove = mutation({
     args: { id: v.id("documents") },
     handler: async (ctx, args) => {
@@ -220,7 +228,7 @@ export const remove = mutation({
         return document;
     }
 });
-
+// 获取搜索结果
 export const getSearch = query({
     handler: async (ctx) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -235,7 +243,7 @@ export const getSearch = query({
             .query("documents")
             .withIndex("by_user", (q) => q.eq("userId", userId))
             .filter((q) =>
-                q.eq(q.field("isArchived"), false),
+                q.eq(q.field("isArchived"), false), //不搜索回收站的文档
             )
             .order("desc")
             .collect()
@@ -243,7 +251,7 @@ export const getSearch = query({
         return documents;
     }
 });
-
+// 获取文档
 export const getById = query({
     args: { documentId: v.id("documents") },
     handler: async (ctx, args) => {
@@ -272,7 +280,7 @@ export const getById = query({
         return document;
     }
 });
-
+// 更新文档
 export const update = mutation({
     args: {
         id: v.id("documents"),
@@ -310,7 +318,7 @@ export const update = mutation({
         return document;
     },
 });
-
+// 更新封面
 export const removeIcon = mutation({
     args: { id: v.id("documents") },
     handler: async (ctx, args) => {
